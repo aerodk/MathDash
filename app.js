@@ -172,7 +172,7 @@ class MathDash {
         this.timerInterval = setInterval(() => {
             const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
             document.getElementById('timerDisplay').textContent = this.formatTime(elapsed);
-        }, 100);
+        }, 1000);
     }
 
     formatTime(seconds) {
@@ -241,6 +241,9 @@ class MathDash {
             setTimeout(() => {
                 btn.textContent = originalText;
             }, 2000);
+        }).catch(() => {
+            // Fallback for older browsers or denied permissions
+            alert('Unable to copy to clipboard. Please copy the text manually.');
         });
     }
 
