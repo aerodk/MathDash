@@ -95,16 +95,17 @@ class MathDash {
             const node = document.createElement('div');
             node.className = 'path-node';
             node.id = `node-${i}`;
-            node.dataset.value = table * i;
+            const nodeValue = table * i;
+            node.dataset.value = nodeValue;
             
             const nodeContent = document.createElement('div');
             nodeContent.className = 'node-content';
-            nodeContent.textContent = table * i;
+            nodeContent.textContent = nodeValue;
             
             node.appendChild(nodeContent);
             
             // Add click event listener for interactive gameplay
-            node.addEventListener('click', () => this.handleNodeClick(table * i, node));
+            node.addEventListener('click', () => this.handleNodeClick(parseInt(node.dataset.value), node));
             
             pathContainer.appendChild(node);
             
@@ -154,8 +155,10 @@ class MathDash {
         // Disable already completed nodes
         for (let i = 0; i < this.currentQuestionIndex; i++) {
             const completedNode = document.getElementById(`node-${i + 1}`);
-            completedNode.style.pointerEvents = 'none';
-            completedNode.style.cursor = 'default';
+            if (completedNode) {
+                completedNode.style.pointerEvents = 'none';
+                completedNode.style.cursor = 'default';
+            }
         }
     }
 

@@ -331,14 +331,6 @@ body {
     font-weight: 600;
 }
 
-.answer-input {
-    display: none; /* No longer needed - using clickable labyrinth nodes */
-}
-
-.answer-input:focus {
-    display: none;
-}
-
 .feedback {
     min-height: 30px;
     margin-top: 1rem;
