@@ -223,6 +223,12 @@ body {
     justify-content: center;
     transition: var(--transition);
     position: relative;
+    cursor: pointer;
+}
+
+.path-node:hover:not(.completed) {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .path-node.active {
@@ -235,6 +241,16 @@ body {
 .path-node.completed {
     background: linear-gradient(135deg, #51CF66 0%, #37B24D 100%);
     box-shadow: 0 2px 8px rgba(81, 207, 102, 0.4);
+    cursor: default;
+}
+
+.path-node.error {
+    background: linear-gradient(135deg, #FF6B6B 0%, #E85454 100%);
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
+}
+
+.path-node.shake {
+    animation: shake 0.5s;
 }
 
 .path-node.completed .node-content::after {
@@ -276,6 +292,18 @@ body {
     }
 }
 
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-10px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(10px);
+    }
+}
+
 .question-card {
     background: var(--card-bg);
     padding: 2rem;
@@ -288,7 +316,7 @@ body {
 .question {
     font-size: 3rem;
     font-weight: 700;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     color: var(--text-color);
     min-height: 80px;
     display: flex;
@@ -296,22 +324,19 @@ body {
     justify-content: center;
 }
 
-.answer-input {
-    width: 100%;
-    padding: 1.2rem;
-    font-size: 1.8rem;
-    border: 3px solid #ddd;
-    border-radius: var(--border-radius);
-    text-align: center;
-    margin-bottom: 1rem;
-    transition: var(--transition);
+.instruction-text {
+    font-size: 1.2rem;
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
     font-weight: 600;
 }
 
+.answer-input {
+    display: none; /* No longer needed - using clickable labyrinth nodes */
+}
+
 .answer-input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+    display: none;
 }
 
 .feedback {

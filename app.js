@@ -19,10 +19,6 @@ class MathDash {
     setupEventListeners() {
         document.getElementById('startBtn').addEventListener('click', () => this.showTableSelection());
         document.getElementById('backToStartBtn').addEventListener('click', () => this.showScreen('startScreen'));
-        document.getElementById('submitBtn').addEventListener('click', () => this.submitAnswer());
-        document.getElementById('answerInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.submitAnswer();
-        });
         document.getElementById('playAgainBtn').addEventListener('click', () => this.showTableSelection());
         document.getElementById('sameTableBtn').addEventListener('click', () => this.startGame(this.selectedTable));
     }
@@ -99,12 +95,17 @@ class MathDash {
             const node = document.createElement('div');
             node.className = 'path-node';
             node.id = `node-${i}`;
+            node.dataset.value = table * i;
             
             const nodeContent = document.createElement('div');
             nodeContent.className = 'node-content';
             nodeContent.textContent = table * i;
             
             node.appendChild(nodeContent);
+            
+            // Add click event listener for interactive gameplay
+            node.addEventListener('click', () => this.handleNodeClick(table * i, node));
+            
             pathContainer.appendChild(node);
             
             // Add connector line (except after last node)
@@ -140,25 +141,31 @@ class MathDash {
         const challenge = this.challenges[this.currentQuestionIndex];
         document.getElementById('questionText').textContent = challenge.question;
         document.getElementById('currentQuestion').textContent = this.currentQuestionIndex + 1;
-        document.getElementById('answerInput').value = '';
-        document.getElementById('answerInput').focus();
         document.getElementById('feedback').textContent = '';
         document.getElementById('feedback').className = 'feedback';
+        
+        // Enable all nodes for clicking
+        document.querySelectorAll('.path-node').forEach(node => {
+            node.classList.remove('error', 'shake');
+            node.style.pointerEvents = 'auto';
+            node.style.cursor = 'pointer';
+        });
+        
+        // Disable already completed nodes
+        for (let i = 0; i < this.currentQuestionIndex; i++) {
+            const completedNode = document.getElementById(`node-${i + 1}`);
+            completedNode.style.pointerEvents = 'none';
+            completedNode.style.cursor = 'default';
+        }
     }
 
-    submitAnswer() {
-        const userAnswer = parseInt(document.getElementById('answerInput').value);
-        
-        if (isNaN(userAnswer)) {
-            return;
-        }
-        
+    handleNodeClick(clickedValue, clickedNode) {
         const challenge = this.challenges[this.currentQuestionIndex];
-        const isCorrect = userAnswer === challenge.answer;
+        const isCorrect = clickedValue === challenge.answer;
         
         this.answers.push({
             question: challenge.question,
-            userAnswer: userAnswer,
+            userAnswer: clickedValue,
             correctAnswer: challenge.answer,
             isCorrect: isCorrect
         });
@@ -173,21 +180,33 @@ class MathDash {
             this.correctAnswers++;
             const randomEncouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
             this.showFeedback(randomEncouragement, true);
-        } else {
-            this.showFeedback(`Oops! The answer is ${challenge.answer}. Try again next time! 💪`, false);
-        }
-        
-        // Move to next question or finish
-        setTimeout(() => {
-            this.currentQuestionIndex++;
-            this.updateLabyrinthProgress(this.currentQuestionIndex);
             
-            if (this.currentQuestionIndex < this.challenges.length) {
-                this.displayQuestion();
-            } else {
-                this.endGame();
-            }
-        }, 1500);
+            // Disable all nodes during transition
+            document.querySelectorAll('.path-node').forEach(node => {
+                node.style.pointerEvents = 'none';
+            });
+            
+            // Move to next question or finish
+            setTimeout(() => {
+                this.currentQuestionIndex++;
+                this.updateLabyrinthProgress(this.currentQuestionIndex);
+                
+                if (this.currentQuestionIndex < this.challenges.length) {
+                    this.displayQuestion();
+                } else {
+                    this.endGame();
+                }
+            }, 1500);
+        } else {
+            // Show error feedback
+            clickedNode.classList.add('error', 'shake');
+            this.showFeedback(`Not quite! ✖️ Try again!`, false);
+            
+            // Remove error styling after animation
+            setTimeout(() => {
+                clickedNode.classList.remove('shake');
+            }, 500);
+        }
     }
 
     showFeedback(message, isCorrect) {
