@@ -51,6 +51,12 @@ class MathDash {
     }
 
     startGame(table) {
+        // Validate table number
+        if (typeof table !== 'number' || table < 1 || table > 10) {
+            console.error('Invalid table number:', table);
+            return;
+        }
+        
         this.selectedTable = table;
         this.currentQuestionIndex = 0;
         this.answers = [];
@@ -219,7 +225,13 @@ class MathDash {
         document.querySelectorAll('.screen').forEach(screen => {
             screen.classList.remove('active');
         });
-        document.getElementById(screenId).classList.add('active');
+        
+        const targetScreen = document.getElementById(screenId);
+        if (targetScreen) {
+            targetScreen.classList.add('active');
+        } else {
+            console.error('Screen not found:', screenId);
+        }
     }
 }
 
