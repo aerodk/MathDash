@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MathDash - Daily math challenge game. Solve 10 math problems as fast as you can!">
+    <meta name="theme-color" content="#4A90E2">
+    <title>MathDash - Daily Math Challenge</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🧮</text></svg>">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Start Screen -->
+        <div id="startScreen" class="screen active">
+            <div class="container">
+                <h1 class="title">🧮 MathDash</h1>
+                <p class="subtitle">Daily Math Challenge</p>
+                <div class="info-box">
+                    <p>Solve 10 math problems as fast as you can!</p>
+                    <p class="date-info">Today's Challenge: <span id="challengeDate"></span></p>
+                </div>
+                <button id="startBtn" class="btn btn-primary">Start Challenge</button>
+                <div class="stats-preview">
+                    <p id="todayStats"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="screen">
+            <div class="container">
+                <div class="game-header">
+                    <div class="progress-info">
+                        <span>Question <span id="currentQuestion">1</span>/10</span>
+                    </div>
+                    <div class="timer">
+                        <span id="timerDisplay">0:00</span>
+                    </div>
+                </div>
+                <div class="question-card">
+                    <div class="question" id="questionText">5 + 3 = ?</div>
+                    <input type="number" id="answerInput" class="answer-input" placeholder="Your answer" autofocus>
+                    <button id="submitBtn" class="btn btn-primary">Submit</button>
+                    <div id="feedback" class="feedback"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="screen">
+            <div class="container">
+                <h2 class="results-title">Challenge Complete! 🎉</h2>
+                <div class="results-box">
+                    <div class="result-stat">
+                        <span class="stat-label">Time</span>
+                        <span class="stat-value" id="finalTime">0:00</span>
+                    </div>
+                    <div class="result-stat">
+                        <span class="stat-label">Accuracy</span>
+                        <span class="stat-value" id="accuracy">100%</span>
+                    </div>
+                    <div class="result-stat">
+                        <span class="stat-label">Score</span>
+                        <span class="stat-value" id="score">10/10</span>
+                    </div>
+                </div>
+                <div class="share-box">
+                    <div id="shareText" class="share-text"></div>
+                    <button id="shareBtn" class="btn btn-secondary">Share Results</button>
+                    <button id="copyBtn" class="btn btn-secondary">Copy to Clipboard</button>
+                </div>
+                <button id="playAgainBtn" class="btn btn-primary">View Today's Challenge</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
