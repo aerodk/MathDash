@@ -1,25 +1,29 @@
-# MathDash 🧮
+# MathDash 🎮
 
-Daily math challenge game - "Wordle for math"
+Multiplication Labyrinth - A fun game for kids to practice their times tables!
 
 ## About
 
-MathDash is a daily brain training game where you solve 10 math challenges as fast as possible. Everyone gets the same challenges each day, making it easy to compare results with friends!
+MathDash is a gamified multiplication practice app designed for children aged 7-11 (grades 2-5). Kids choose a times table (1-10) and navigate through a colorful labyrinth by solving multiplication problems in sequence!
 
 ## Features
 
-- 🎯 **Daily Challenges**: 10 new math problems every day
-- ⏱️ **Timed Gameplay**: Race against the clock
-- 📊 **Shareable Results**: Share your score like Wordle
-- 📱 **Mobile-First**: Optimized for phones and tablets
-- 💾 **PWA Ready**: Install as an app on your device
-- 🌐 **Works Offline**: Play even without internet
+- 🎯 **Choose Your Table**: Practice multiplication tables from 1 to 10
+- 🌈 **Colorful Labyrinth**: Navigate through a visual path showing your progress
+- ⭐ **Star Rewards**: Earn stars based on your accuracy
+- 🎨 **Kid-Friendly Design**: Bright colors and encouraging messages
+- 💪 **Practice Makes Perfect**: Repeat any table as many times as you want
+- 📱 **Mobile-First**: Optimized for tablets and phones
+- 💾 **Works Offline**: No internet needed to practice
 
 ## How to Play
 
-1. Open the app and click "Start Challenge"
-2. Solve 10 math problems as quickly as you can
-3. View your results and share with friends!
+1. Click "Choose Your Table!" on the start screen
+2. Select which times table you want to practice (1-10)
+3. Solve each multiplication problem to progress through the labyrinth
+4. Complete all 10 problems to finish the labyrinth
+5. Earn stars and celebrate your achievement!
+6. Practice another table or try the same one again!
 
 ## Live Demo
 
@@ -56,12 +60,20 @@ php -S localhost:8000
 
 Then open `http://localhost:8000` in your browser.
 
+## Educational Benefits
+
+- **Sequential Learning**: Practice multiplication tables in order (2, 4, 6, 8...)
+- **Visual Progress**: See your path through the labyrinth
+- **Positive Reinforcement**: Encouraging messages and star rewards
+- **Self-Paced**: No time pressure, focus on learning
+- **Repetition**: Practice the same table multiple times to build mastery
+
 ## Technology
 
 - Pure HTML, CSS, and JavaScript (no frameworks needed!)
-- Progressive Web App (PWA) with service worker
-- Deterministic challenge generation (same challenges for everyone each day)
-- Local storage for saving results
+- Progressive Web App (PWA) ready
+- Colorful, kid-friendly interface
+- Responsive design for all devices
 
 ## Browser Support
 

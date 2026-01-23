@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="MathDash - Daily math challenge game. Solve 10 math problems as fast as you can!">
-    <meta name="theme-color" content="#4A90E2">
-    <title>MathDash - Daily Math Challenge</title>
+    <meta name="description" content="MathDash - Fun multiplication table game for kids! Navigate through the labyrinth and practice your times tables!">
+    <meta name="theme-color" content="#FF6B6B">
+    <title>MathDash - Multiplication Labyrinth</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🧮</text></svg>">
     <link rel="stylesheet" href="styles.css">
@@ -15,16 +15,25 @@
         <!-- Start Screen -->
         <div id="startScreen" class="screen active">
             <div class="container">
-                <h1 class="title">🧮 MathDash</h1>
-                <p class="subtitle">Daily Math Challenge</p>
+                <h1 class="title">🎮 MathDash</h1>
+                <p class="subtitle">Multiplication Labyrinth</p>
                 <div class="info-box">
-                    <p>Solve 10 math problems as fast as you can!</p>
-                    <p class="date-info">Today's Challenge: <span id="challengeDate"></span></p>
+                    <p class="welcome-text">Welcome! Choose a times table to practice!</p>
+                    <p class="instruction-text">Navigate through the labyrinth by solving multiplication problems! 🌟</p>
                 </div>
-                <button id="startBtn" class="btn btn-primary">Start Challenge</button>
-                <div class="stats-preview">
-                    <p id="todayStats"></p>
+                <button id="startBtn" class="btn btn-primary">Choose Your Table!</button>
+            </div>
+        </div>
+
+        <!-- Table Selection Screen -->
+        <div id="tableSelectScreen" class="screen">
+            <div class="container">
+                <h2 class="select-title">Choose Your Times Table! 🎯</h2>
+                <p class="select-subtitle">Which multiplication table do you want to practice?</p>
+                <div class="table-grid" id="tableGrid">
+                    <!-- Will be populated by JavaScript -->
                 </div>
+                <button id="backToStartBtn" class="btn btn-secondary">Back</button>
             </div>
         </div>
 
@@ -32,17 +41,25 @@
         <div id="gameScreen" class="screen">
             <div class="container">
                 <div class="game-header">
-                    <div class="progress-info">
-                        <span>Question <span id="currentQuestion">1</span>/10</span>
+                    <div class="table-info">
+                        <span class="table-badge" id="tableBadge">Table: 2</span>
                     </div>
-                    <div class="timer">
-                        <span id="timerDisplay">0:00</span>
+                    <div class="progress-info">
+                        <span>Step <span id="currentQuestion">1</span>/10</span>
                     </div>
                 </div>
+                
+                <!-- Labyrinth Path -->
+                <div class="labyrinth-container">
+                    <div class="labyrinth-path" id="labyrinthPath">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
                 <div class="question-card">
-                    <div class="question" id="questionText">5 + 3 = ?</div>
+                    <div class="question" id="questionText">2 × 1 = ?</div>
                     <input type="number" id="answerInput" class="answer-input" placeholder="Your answer" autofocus>
-                    <button id="submitBtn" class="btn btn-primary">Submit</button>
+                    <button id="submitBtn" class="btn btn-primary">Go! 🚀</button>
                     <div id="feedback" class="feedback"></div>
                 </div>
             </div>
@@ -51,27 +68,24 @@
         <!-- Results Screen -->
         <div id="resultsScreen" class="screen">
             <div class="container">
-                <h2 class="results-title">Challenge Complete! 🎉</h2>
+                <h2 class="results-title">Amazing Work! 🎉✨</h2>
+                <div class="celebration-text" id="celebrationText">You completed the labyrinth!</div>
                 <div class="results-box">
                     <div class="result-stat">
-                        <span class="stat-label">Time</span>
-                        <span class="stat-value" id="finalTime">0:00</span>
+                        <span class="stat-label">Table Practiced</span>
+                        <span class="stat-value" id="completedTable">2</span>
                     </div>
                     <div class="result-stat">
-                        <span class="stat-label">Accuracy</span>
-                        <span class="stat-value" id="accuracy">100%</span>
-                    </div>
-                    <div class="result-stat">
-                        <span class="stat-label">Score</span>
+                        <span class="stat-label">Correct Answers</span>
                         <span class="stat-value" id="score">10/10</span>
                     </div>
+                    <div class="result-stat">
+                        <span class="stat-label">Stars Earned</span>
+                        <span class="stat-value" id="starsEarned">⭐⭐⭐</span>
+                    </div>
                 </div>
-                <div class="share-box">
-                    <div id="shareText" class="share-text"></div>
-                    <button id="shareBtn" class="btn btn-secondary">Share Results</button>
-                    <button id="copyBtn" class="btn btn-secondary">Copy to Clipboard</button>
-                </div>
-                <button id="playAgainBtn" class="btn btn-primary">View Today's Challenge</button>
+                <button id="playAgainBtn" class="btn btn-primary">Practice Another Table! 🎮</button>
+                <button id="sameTableBtn" class="btn btn-secondary">Practice Same Table Again</button>
             </div>
         </div>
     </div>
