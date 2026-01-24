@@ -137,9 +137,9 @@ class MathDash {
         const options = [correctAnswer];
         const wrongAnswers = new Set();
         
-        // Safety counter to prevent infinite loops
+        // Safety counter to prevent infinite loops (20 attempts should be more than enough)
         let attempts = 0;
-        const maxAttempts = 100;
+        const maxAttempts = 20;
         
         // Strategy for generating plausible wrong answers
         while (wrongAnswers.size < 2 && attempts < maxAttempts) {
@@ -156,7 +156,7 @@ class MathDash {
                     break;
                 case 2: // Related table answer
                     const offset = Math.floor(Math.random() * 3) + 1;
-                    const relatedTable = table + (Math.random() < 0.5 ? offset : -offset);
+                    const relatedTable = Math.max(1, table + (Math.random() < 0.5 ? offset : -offset));
                     wrongAnswer = relatedTable * Math.ceil(correctAnswer / table);
                     break;
                 case 3: // Random nearby value
@@ -170,10 +170,12 @@ class MathDash {
             }
         }
         
-        // If we couldn't generate enough wrong answers (edge case), add simple fallbacks
+        // If we couldn't generate enough wrong answers (edge case), use smart fallbacks
         while (wrongAnswers.size < 2) {
-            const fallback = correctAnswer + wrongAnswers.size + 1;
-            if (fallback !== correctAnswer && !wrongAnswers.has(fallback)) {
+            // Try table-based offset first, then small random offsets
+            const fallbackStrategy = wrongAnswers.size === 0 ? table : Math.floor(Math.random() * 3) + 2;
+            const fallback = correctAnswer + fallbackStrategy;
+            if (fallback > 0 && fallback !== correctAnswer && !wrongAnswers.has(fallback)) {
                 wrongAnswers.add(fallback);
             }
         }
@@ -181,8 +183,8 @@ class MathDash {
         return [correctAnswer, ...Array.from(wrongAnswers)];
     }
     
+    // Fisher-Yates shuffle - mutates array in place
     shuffleArray(array) {
-        // Fisher-Yates shuffle - mutates array in place
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
