@@ -8,6 +8,12 @@ class MathDash {
         this.correctAnswers = 0;
         this.selectedTable = null;
         
+        // Constants for distractor generation
+        this.MAX_DISTRACTOR_GENERATION_ATTEMPTS = 20;
+        this.FALLBACK_RANDOM_RANGE = 3;
+        this.FALLBACK_MIN_OFFSET = 2;
+        this.MAX_FALLBACK_ATTEMPTS = 10;
+        
         this.init();
     }
 
@@ -90,51 +96,134 @@ class MathDash {
         const pathContainer = document.getElementById('labyrinthPath');
         pathContainer.innerHTML = '';
         
-        // Create path nodes for each step in the multiplication sequence
+        // Create maze with multiple paths - 3 options per question
         for (let i = 1; i <= 10; i++) {
-            const node = document.createElement('div');
-            node.className = 'path-node';
-            node.id = `node-${i}`;
-            const nodeValue = table * i;
-            node.dataset.value = nodeValue;
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'maze-row';
+            rowDiv.id = `row-${i}`;
             
-            const nodeContent = document.createElement('div');
-            nodeContent.className = 'node-content';
-            nodeContent.textContent = nodeValue;
+            const correctAnswer = table * i;
             
-            node.appendChild(nodeContent);
+            // Generate wrong answers (distractors)
+            const options = this.generateMazeOptions(correctAnswer, table);
             
-            // Add click event listener for interactive gameplay
-            node.addEventListener('click', () => this.handleNodeClick(parseInt(node.dataset.value), node));
+            // Shuffle options so correct answer isn't always in same position
+            this.shuffleArray(options);
             
-            pathContainer.appendChild(node);
+            // Create nodes for each option
+            options.forEach((value, index) => {
+                const node = document.createElement('div');
+                node.className = 'path-node';
+                node.id = `node-${i}-${index}`;
+                node.dataset.value = value;
+                node.dataset.isCorrect = (value === correctAnswer);
+                node.dataset.row = i;
+                
+                const nodeContent = document.createElement('div');
+                nodeContent.className = 'node-content';
+                nodeContent.textContent = value;
+                
+                node.appendChild(nodeContent);
+                
+                // Add click event listener for interactive gameplay
+                node.addEventListener('click', () => this.handleNodeClick(parseInt(node.dataset.value), node));
+                
+                rowDiv.appendChild(node);
+            });
             
-            // Add connector line (except after last node)
-            if (i < 10) {
-                const connector = document.createElement('div');
-                connector.className = 'path-connector';
-                pathContainer.appendChild(connector);
+            pathContainer.appendChild(rowDiv);
+        }
+        
+        // Highlight first row as active
+        this.updateLabyrinthProgress(0);
+    }
+    
+    generateMazeOptions(correctAnswer, table) {
+        // Generate 2 wrong answers along with the correct answer
+        const options = [correctAnswer];
+        const wrongAnswers = new Set();
+        
+        // Safety counter to prevent infinite loops
+        let attempts = 0;
+        
+        // Strategy for generating plausible wrong answers
+        while (wrongAnswers.size < 2 && attempts < this.MAX_DISTRACTOR_GENERATION_ATTEMPTS) {
+            attempts++;
+            const strategy = Math.floor(Math.random() * 4);
+            let wrongAnswer;
+            
+            switch(strategy) {
+                case 0: // Off by table value
+                    wrongAnswer = correctAnswer + (Math.random() < 0.5 ? table : -table);
+                    break;
+                case 1: // Off by 1
+                    wrongAnswer = correctAnswer + (Math.random() < 0.5 ? 1 : -1);
+                    break;
+                case 2: // Related table answer - use different table with same multiplier
+                    const offset = Math.floor(Math.random() * 3) + 1;
+                    const relatedTable = Math.max(1, table + (Math.random() < 0.5 ? offset : -offset));
+                    const multiplier = Math.ceil(correctAnswer / table);
+                    wrongAnswer = relatedTable * multiplier;
+                    break;
+                case 3: // Random nearby value
+                    wrongAnswer = correctAnswer + Math.floor(Math.random() * 10) - 5;
+                    break;
+            }
+            
+            // Ensure wrong answer is positive and different from correct answer
+            if (wrongAnswer > 0 && wrongAnswer !== correctAnswer && !wrongAnswers.has(wrongAnswer)) {
+                wrongAnswers.add(wrongAnswer);
             }
         }
         
-        // Highlight first node as active
-        this.updateLabyrinthProgress(0);
+        // If we couldn't generate enough wrong answers (edge case), use smart fallbacks
+        let fallbackAttempts = 0;
+        while (wrongAnswers.size < 2 && fallbackAttempts < this.MAX_FALLBACK_ATTEMPTS) {
+            fallbackAttempts++;
+            // Try table-based offset first, then small random offsets
+            const fallbackStrategy = wrongAnswers.size === 0 ? table : Math.floor(Math.random() * this.FALLBACK_RANDOM_RANGE) + this.FALLBACK_MIN_OFFSET;
+            const fallback = correctAnswer + fallbackStrategy;
+            if (fallback > 0 && fallback !== correctAnswer && !wrongAnswers.has(fallback)) {
+                wrongAnswers.add(fallback);
+            }
+        }
+        
+        return [correctAnswer, ...Array.from(wrongAnswers)];
+    }
+    
+    /**
+     * Fisher-Yates shuffle algorithm
+     * Mutates the input array in place
+     * @param {Array} array - The array to shuffle (will be modified)
+     */
+    shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
     }
 
     updateLabyrinthProgress(index) {
-        // Remove all active/completed classes
-        document.querySelectorAll('.path-node').forEach(node => {
-            node.classList.remove('active', 'completed');
+        // Remove all active classes and disable all rows
+        document.querySelectorAll('.maze-row').forEach(row => {
+            row.classList.remove('active');
         });
         
-        // Mark completed nodes
-        for (let i = 0; i < index; i++) {
-            document.getElementById(`node-${i + 1}`).classList.add('completed');
-        }
+        document.querySelectorAll('.path-node').forEach(node => {
+            node.classList.remove('active');
+            node.style.pointerEvents = 'none';
+        });
         
-        // Mark current node as active
+        // Enable current row
         if (index < 10) {
-            document.getElementById(`node-${index + 1}`).classList.add('active');
+            const currentRow = document.getElementById(`row-${index + 1}`);
+            if (currentRow) {
+                currentRow.classList.add('active');
+                currentRow.querySelectorAll('.path-node').forEach(node => {
+                    node.classList.add('active');
+                    node.style.pointerEvents = 'auto';
+                });
+            }
         }
     }
 
@@ -145,26 +234,19 @@ class MathDash {
         document.getElementById('feedback').textContent = '';
         document.getElementById('feedback').className = 'feedback';
         
-        // Enable all nodes for clicking
-        document.querySelectorAll('.path-node').forEach(node => {
-            node.classList.remove('error', 'shake');
-            node.style.pointerEvents = 'auto';
-            node.style.cursor = 'pointer';
-        });
-        
-        // Disable already completed nodes
-        for (let i = 0; i < this.currentQuestionIndex; i++) {
-            const completedNode = document.getElementById(`node-${i + 1}`);
-            if (completedNode) {
-                completedNode.style.pointerEvents = 'none';
-                completedNode.style.cursor = 'default';
-            }
-        }
+        // Update the maze progress to enable current row
+        this.updateLabyrinthProgress(this.currentQuestionIndex);
     }
 
     handleNodeClick(clickedValue, clickedNode) {
+        // Check if this node is in the current active row
+        const nodeRow = parseInt(clickedNode.dataset.row);
+        if (nodeRow !== this.currentQuestionIndex + 1) {
+            return; // Ignore clicks on wrong rows
+        }
+        
         const challenge = this.challenges[this.currentQuestionIndex];
-        const isCorrect = clickedValue === challenge.answer;
+        const isCorrect = clickedNode.dataset.isCorrect === 'true';
         
         this.answers.push({
             question: challenge.question,
@@ -184,6 +266,19 @@ class MathDash {
             const randomEncouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
             this.showFeedback(randomEncouragement, true);
             
+            // Mark the correct node as completed
+            clickedNode.classList.remove('active');
+            clickedNode.classList.add('completed');
+            
+            // Mark wrong nodes in current row as wrong
+            const currentRow = document.getElementById(`row-${nodeRow}`);
+            currentRow.querySelectorAll('.path-node').forEach(node => {
+                if (node !== clickedNode) {
+                    node.classList.add('wrong-path');
+                    node.style.pointerEvents = 'none';
+                }
+            });
+            
             // Disable all nodes during transition
             document.querySelectorAll('.path-node').forEach(node => {
                 node.style.pointerEvents = 'none';
@@ -192,7 +287,6 @@ class MathDash {
             // Move to next question or finish
             setTimeout(() => {
                 this.currentQuestionIndex++;
-                this.updateLabyrinthProgress(this.currentQuestionIndex);
                 
                 if (this.currentQuestionIndex < this.challenges.length) {
                     this.displayQuestion();
@@ -208,6 +302,7 @@ class MathDash {
             // Remove error styling after animation
             setTimeout(() => {
                 clickedNode.classList.remove('shake');
+                // Keep the error class to show it was tried
             }, 500);
         }
     }

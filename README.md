@@ -1,15 +1,17 @@
 # MathDash 🎮
 
-Multiplication Labyrinth - A fun game for kids to practice their times tables!
+Multiplication Maze - A fun game for kids to practice their times tables!
 
 ## About
 
-MathDash is a gamified multiplication practice app designed for children aged 7-11 (grades 2-5). Kids choose a times table (1-10) and navigate through a colorful labyrinth by solving multiplication problems in sequence!
+MathDash is a gamified multiplication practice app designed for children aged 7-11 (grades 2-5). Kids choose a times table (1-10) and navigate through a colorful maze by solving multiplication problems, choosing from multiple answer options at each step!
 
 ## Features
 
 - 🎯 **Choose Your Table**: Practice multiplication tables from 1 to 10
-- 🌈 **Colorful Labyrinth**: Navigate through a visual path showing your progress
+- 🧩 **Interactive Maze**: Navigate through a challenging maze with multiple choice answers at each step
+- 🎲 **Non-Linear Challenges**: Numbers are randomized and not in simple sequence - test your real understanding!
+- ✅ **Correct & Wrong Paths**: Choose from 3 options per question - both correct and incorrect answers are shown
 - ⭐ **Star Rewards**: Earn stars based on your accuracy
 - 🎨 **Kid-Friendly Design**: Bright colors and encouraging messages
 - 💪 **Practice Makes Perfect**: Repeat any table as many times as you want
@@ -20,10 +22,11 @@ MathDash is a gamified multiplication practice app designed for children aged 7-
 
 1. Click "Choose Your Table!" on the start screen
 2. Select which times table you want to practice (1-10)
-3. Solve each multiplication problem to progress through the labyrinth
-4. Complete all 10 problems to finish the labyrinth
-5. Earn stars and celebrate your achievement!
-6. Practice another table or try the same one again!
+3. For each question, choose the correct answer from 3 options
+4. Navigate through the maze - correct answers turn green ✓, wrong attempts show red
+5. Complete all 10 problems to finish the maze
+6. Earn stars and celebrate your achievement!
+7. Practice another table or try the same one again!
 
 ## Live Demo
 
@@ -62,10 +65,12 @@ Then open `http://localhost:8000` in your browser.
 
 ## Educational Benefits
 
-- **Sequential Learning**: Practice multiplication tables in order (2, 4, 6, 8...)
-- **Visual Progress**: See your path through the labyrinth
+- **Critical Thinking**: Choose between multiple answers - not just following a sequence
+- **Real Understanding**: Non-linear number sequences test genuine multiplication knowledge
+- **Visual Progress**: See your path through the maze with completed steps marked
 - **Positive Reinforcement**: Encouraging messages and star rewards
 - **Self-Paced**: No time pressure, focus on learning
+- **Trial and Error**: Learn from mistakes - wrong answers can be tried multiple times
 - **Repetition**: Practice the same table multiple times to build mastery
 
 ## Technology
