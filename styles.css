@@ -269,21 +269,21 @@ body {
     box-shadow: 0 4px 12px rgba(255, 165, 0, 0.4);
 }
 
-.path-node.completed {
-    background: linear-gradient(135deg, #51CF66 0%, #37B24D 100%) !important;
+.maze-row .path-node.completed {
+    background: linear-gradient(135deg, #51CF66 0%, #37B24D 100%);
     box-shadow: 0 2px 8px rgba(81, 207, 102, 0.4);
     cursor: default;
     transform: scale(1.1);
 }
 
-.path-node.wrong-path {
-    background: #D3D3D3 !important;
+.maze-row .path-node.wrong-path {
+    background: #D3D3D3;
     opacity: 0.5;
     cursor: default;
 }
 
-.path-node.error {
-    background: linear-gradient(135deg, #FF6B6B 0%, #E85454 100%) !important;
+.maze-row .path-node.error {
+    background: linear-gradient(135deg, #FF6B6B 0%, #E85454 100%);
     box-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
 }
 

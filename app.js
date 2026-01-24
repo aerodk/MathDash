@@ -137,8 +137,13 @@ class MathDash {
         const options = [correctAnswer];
         const wrongAnswers = new Set();
         
+        // Safety counter to prevent infinite loops
+        let attempts = 0;
+        const maxAttempts = 100;
+        
         // Strategy for generating plausible wrong answers
-        while (wrongAnswers.size < 2) {
+        while (wrongAnswers.size < 2 && attempts < maxAttempts) {
+            attempts++;
             const strategy = Math.floor(Math.random() * 4);
             let wrongAnswer;
             
@@ -165,15 +170,23 @@ class MathDash {
             }
         }
         
+        // If we couldn't generate enough wrong answers (edge case), add simple fallbacks
+        while (wrongAnswers.size < 2) {
+            const fallback = correctAnswer + wrongAnswers.size + 1;
+            if (fallback !== correctAnswer && !wrongAnswers.has(fallback)) {
+                wrongAnswers.add(fallback);
+            }
+        }
+        
         return [correctAnswer, ...Array.from(wrongAnswers)];
     }
     
     shuffleArray(array) {
+        // Fisher-Yates shuffle - mutates array in place
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
         }
-        return array;
     }
 
     updateLabyrinthProgress(index) {
