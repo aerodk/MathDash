@@ -1,15 +1,15 @@
 {
-  "name": "MathDash - Daily Math Challenge",
+  "name": "MathDash - Multiplication Labyrinth",
   "short_name": "MathDash",
-  "description": "Daily math challenge game. Solve 10 math problems as fast as you can!",
+  "description": "Fun multiplication table practice game for kids! Navigate through the labyrinth.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F5F7FA",
-  "theme_color": "#4A90E2",
+  "background_color": "#FFF5E6",
+  "theme_color": "#FF6B6B",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%234A90E2' rx='64'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='256'>🧮</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%23FF6B6B' rx='64'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='256'>🎮</text></svg>",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
