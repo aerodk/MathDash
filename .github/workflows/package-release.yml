@@ -1,0 +1,78 @@
+name: Package and Release MathDash
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from package metadata
+        id: version
+        run: |
+          # Use commit SHA short hash as version identifier
+          VERSION=$(git rev-parse --short HEAD)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Version: ${VERSION}"
+
+      - name: Create package directory
+        run: |
+          mkdir -p package/mathdash
+
+      - name: Copy application files to package
+        run: |
+          # Copy all necessary files
+          cp index.html package/mathdash/
+          cp app.js package/mathdash/
+          cp styles.css package/mathdash/
+          cp manifest.json package/mathdash/
+          cp sw.js package/mathdash/
+          cp README.md package/mathdash/
+          cp DEPLOYMENT.md package/mathdash/
+
+      - name: Create package archive
+        run: |
+          cd package
+          zip -r mathdash-${{ steps.version.outputs.version }}.zip mathdash/
+          cd ..
+
+      - name: Upload package as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mathdash-package-${{ steps.version.outputs.version }}
+          path: package/mathdash-${{ steps.version.outputs.version }}.zip
+          retention-days: 90
+
+      - name: Create deployment summary
+        run: |
+          echo "## 📦 MathDash Package Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Package version: \`${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Package Contents:" >> $GITHUB_STEP_SUMMARY
+          echo "- index.html" >> $GITHUB_STEP_SUMMARY
+          echo "- app.js" >> $GITHUB_STEP_SUMMARY
+          echo "- styles.css" >> $GITHUB_STEP_SUMMARY
+          echo "- manifest.json" >> $GITHUB_STEP_SUMMARY
+          echo "- sw.js" >> $GITHUB_STEP_SUMMARY
+          echo "- README.md" >> $GITHUB_STEP_SUMMARY
+          echo "- DEPLOYMENT.md" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Server Requirements:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Type**: Static web server (Apache, Nginx, GitHub Pages, Netlify, etc.)" >> $GITHUB_STEP_SUMMARY
+          echo "- **HTTPS**: Recommended for PWA features" >> $GITHUB_STEP_SUMMARY
+          echo "- **No backend required**: Pure client-side PWA" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📥 Download the package artifact from this workflow run to deploy." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📖 See DEPLOYMENT.md in the package for detailed deployment instructions." >> $GITHUB_STEP_SUMMARY
