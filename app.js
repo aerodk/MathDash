@@ -140,6 +140,8 @@ class MathDash {
         // Safety counter to prevent infinite loops (20 attempts should be more than enough)
         let attempts = 0;
         const maxAttempts = 20;
+        const FALLBACK_RANDOM_RANGE = 3;
+        const FALLBACK_MIN_OFFSET = 2;
         
         // Strategy for generating plausible wrong answers
         while (wrongAnswers.size < 2 && attempts < maxAttempts) {
@@ -154,10 +156,11 @@ class MathDash {
                 case 1: // Off by 1
                     wrongAnswer = correctAnswer + (Math.random() < 0.5 ? 1 : -1);
                     break;
-                case 2: // Related table answer
+                case 2: // Related table answer - use different table with same multiplier
                     const offset = Math.floor(Math.random() * 3) + 1;
                     const relatedTable = Math.max(1, table + (Math.random() < 0.5 ? offset : -offset));
-                    wrongAnswer = relatedTable * Math.ceil(correctAnswer / table);
+                    const multiplier = Math.ceil(correctAnswer / table);
+                    wrongAnswer = relatedTable * multiplier;
                     break;
                 case 3: // Random nearby value
                     wrongAnswer = correctAnswer + Math.floor(Math.random() * 10) - 5;
@@ -173,7 +176,7 @@ class MathDash {
         // If we couldn't generate enough wrong answers (edge case), use smart fallbacks
         while (wrongAnswers.size < 2) {
             // Try table-based offset first, then small random offsets
-            const fallbackStrategy = wrongAnswers.size === 0 ? table : Math.floor(Math.random() * 3) + 2;
+            const fallbackStrategy = wrongAnswers.size === 0 ? table : Math.floor(Math.random() * FALLBACK_RANDOM_RANGE) + FALLBACK_MIN_OFFSET;
             const fallback = correctAnswer + fallbackStrategy;
             if (fallback > 0 && fallback !== correctAnswer && !wrongAnswers.has(fallback)) {
                 wrongAnswers.add(fallback);
