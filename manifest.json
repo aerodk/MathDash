@@ -1,7 +1,7 @@
 {
-  "name": "MathDash - Multiplication Labyrinth",
+  "name": "MathDash - Multiplication Maze",
   "short_name": "MathDash",
-  "description": "Fun multiplication table practice game for kids! Navigate through the labyrinth.",
+  "description": "Fun multiplication table practice game for kids! Navigate through the maze with multiple choice challenges.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FFF5E6",
