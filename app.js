@@ -8,6 +8,12 @@ class MathDash {
         this.correctAnswers = 0;
         this.selectedTable = null;
         
+        // Constants for distractor generation
+        this.MAX_DISTRACTOR_GENERATION_ATTEMPTS = 20;
+        this.FALLBACK_RANDOM_RANGE = 3;
+        this.FALLBACK_MIN_OFFSET = 2;
+        this.MAX_FALLBACK_ATTEMPTS = 10;
+        
         this.init();
     }
 
@@ -137,14 +143,11 @@ class MathDash {
         const options = [correctAnswer];
         const wrongAnswers = new Set();
         
-        // Safety counter to prevent infinite loops (20 attempts should be more than enough)
+        // Safety counter to prevent infinite loops
         let attempts = 0;
-        const maxAttempts = 20;
-        const FALLBACK_RANDOM_RANGE = 3;
-        const FALLBACK_MIN_OFFSET = 2;
         
         // Strategy for generating plausible wrong answers
-        while (wrongAnswers.size < 2 && attempts < maxAttempts) {
+        while (wrongAnswers.size < 2 && attempts < this.MAX_DISTRACTOR_GENERATION_ATTEMPTS) {
             attempts++;
             const strategy = Math.floor(Math.random() * 4);
             let wrongAnswer;
@@ -174,9 +177,11 @@ class MathDash {
         }
         
         // If we couldn't generate enough wrong answers (edge case), use smart fallbacks
-        while (wrongAnswers.size < 2) {
+        let fallbackAttempts = 0;
+        while (wrongAnswers.size < 2 && fallbackAttempts < this.MAX_FALLBACK_ATTEMPTS) {
+            fallbackAttempts++;
             // Try table-based offset first, then small random offsets
-            const fallbackStrategy = wrongAnswers.size === 0 ? table : Math.floor(Math.random() * FALLBACK_RANDOM_RANGE) + FALLBACK_MIN_OFFSET;
+            const fallbackStrategy = wrongAnswers.size === 0 ? table : Math.floor(Math.random() * this.FALLBACK_RANDOM_RANGE) + this.FALLBACK_MIN_OFFSET;
             const fallback = correctAnswer + fallbackStrategy;
             if (fallback > 0 && fallback !== correctAnswer && !wrongAnswers.has(fallback)) {
                 wrongAnswers.add(fallback);
@@ -186,7 +191,11 @@ class MathDash {
         return [correctAnswer, ...Array.from(wrongAnswers)];
     }
     
-    // Fisher-Yates shuffle - mutates array in place
+    /**
+     * Fisher-Yates shuffle algorithm
+     * Mutates the input array in place
+     * @param {Array} array - The array to shuffle (will be modified)
+     */
     shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
