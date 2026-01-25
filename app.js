@@ -52,7 +52,15 @@ class MathDash {
         // Update table badge if on game screen
         if (this.selectedTable && document.getElementById('gameScreen').classList.contains('active')) {
             document.getElementById('tableBadge').textContent = `${this.langManager.getTranslation('tableBadge')}: ${this.selectedTable}`;
-            document.querySelector('.progress-info span').innerHTML = `${this.langManager.getTranslation('stepProgress')} <span id="currentQuestion">${this.currentQuestionIndex + 1}</span>/10`;
+            
+            // Update step progress safely without innerHTML
+            const progressSpan = document.querySelector('.progress-info span');
+            progressSpan.textContent = `${this.langManager.getTranslation('stepProgress')} `;
+            const questionSpan = document.createElement('span');
+            questionSpan.id = 'currentQuestion';
+            questionSpan.textContent = String(this.currentQuestionIndex + 1);
+            progressSpan.appendChild(questionSpan);
+            progressSpan.appendChild(document.createTextNode('/10'));
         }
         
         // Update table selection screen if active
@@ -109,8 +117,14 @@ class MathDash {
         // Update table badge
         document.getElementById('tableBadge').textContent = `${this.langManager.getTranslation('tableBadge')}: ${table}`;
         
-        // Update step progress text
-        document.querySelector('.progress-info span').innerHTML = `${this.langManager.getTranslation('stepProgress')} <span id="currentQuestion">1</span>/10`;
+        // Update step progress text safely without innerHTML
+        const progressSpan = document.querySelector('.progress-info span');
+        progressSpan.textContent = `${this.langManager.getTranslation('stepProgress')} `;
+        const questionSpan = document.createElement('span');
+        questionSpan.id = 'currentQuestion';
+        questionSpan.textContent = '1';
+        progressSpan.appendChild(questionSpan);
+        progressSpan.appendChild(document.createTextNode('/10'));
         
         // Create labyrinth path
         this.createLabyrinthPath(table);
