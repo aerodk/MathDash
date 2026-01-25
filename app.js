@@ -6,6 +6,8 @@ class MathDash {
         this.challenges = [];
         this.answers = [];
         this.correctAnswers = 0;
+        this.firstAttemptCorrect = 0;
+        this.attemptedQuestions = new Set();
         this.selectedTable = null;
         
         // Constants for distractor generation
@@ -110,6 +112,8 @@ class MathDash {
         this.currentQuestionIndex = 0;
         this.answers = [];
         this.correctAnswers = 0;
+        this.firstAttemptCorrect = 0;
+        this.attemptedQuestions = new Set();
         
         // Generate challenges for the selected table (1-10)
         this.challenges = this.generateTableChallenges(table);
@@ -315,6 +319,12 @@ class MathDash {
         
         if (isCorrect) {
             this.correctAnswers++;
+            
+            // Track first-attempt correctness
+            if (!this.attemptedQuestions.has(this.currentQuestionIndex)) {
+                this.firstAttemptCorrect++;
+            }
+            
             const randomEncouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
             this.showFeedback(randomEncouragement, true);
             
@@ -347,6 +357,9 @@ class MathDash {
                 }
             }, 1500);
         } else {
+            // Mark this question as attempted (for first-attempt tracking)
+            this.attemptedQuestions.add(this.currentQuestionIndex);
+            
             // Show error feedback
             clickedNode.classList.add('error', 'shake');
             this.showFeedback(this.langManager.getTranslation('feedbackWrong'), false);
@@ -366,11 +379,11 @@ class MathDash {
     }
 
     endGame() {
-        const accuracy = Math.round((this.correctAnswers / this.challenges.length) * 100);
+        const accuracy = Math.round((this.firstAttemptCorrect / this.challenges.length) * 100);
         
         // Display results
         document.getElementById('completedTable').textContent = this.selectedTable;
-        document.getElementById('score').textContent = `${this.correctAnswers}/${this.challenges.length}`;
+        document.getElementById('score').textContent = `${this.firstAttemptCorrect}/${this.challenges.length}`;
         
         // Calculate stars (1-3 based on accuracy)
         let stars = '';
