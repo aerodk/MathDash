@@ -36,6 +36,8 @@ class MathDash {
             btn.addEventListener('click', () => {
                 const lang = btn.getAttribute('data-lang');
                 this.langManager.setLanguage(lang);
+                // Update dynamic game content if in game
+                this.updateDynamicGameContent();
             });
         });
         
@@ -43,6 +45,19 @@ class MathDash {
         const activeBtn = document.querySelector(`[data-lang="${this.langManager.currentLanguage}"]`);
         if (activeBtn) {
             activeBtn.classList.add('active');
+        }
+    }
+    
+    updateDynamicGameContent() {
+        // Update table badge if on game screen
+        if (this.selectedTable && document.getElementById('gameScreen').classList.contains('active')) {
+            document.getElementById('tableBadge').textContent = `${this.langManager.getTranslation('tableBadge')}: ${this.selectedTable}`;
+            document.querySelector('.progress-info span').innerHTML = `${this.langManager.getTranslation('stepProgress')} <span id="currentQuestion">${this.currentQuestionIndex + 1}</span>/10`;
+        }
+        
+        // Update table selection screen if active
+        if (document.getElementById('tableSelectScreen').classList.contains('active')) {
+            this.showTableSelection();
         }
     }
 

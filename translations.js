@@ -123,7 +123,7 @@ class LanguageManager {
             const key = element.getAttribute('data-i18n');
             const translation = this.getTranslation(key);
             
-            if (element.tagName === 'INPUT' || element.tagName === 'BUTTON') {
+            if (element.tagName === 'INPUT') {
                 element.value = translation;
             } else {
                 element.textContent = translation;
