@@ -14,12 +14,36 @@ class MathDash {
         this.FALLBACK_MIN_OFFSET = 2;
         this.MAX_FALLBACK_ATTEMPTS = 10;
         
+        // Initialize language manager
+        this.langManager = new LanguageManager();
+        
         this.init();
     }
 
     init() {
         // Set up event listeners
         this.setupEventListeners();
+        
+        // Set up language switcher
+        this.setupLanguageSwitcher();
+        
+        // Apply initial language
+        this.langManager.updatePageLanguage();
+    }
+    
+    setupLanguageSwitcher() {
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const lang = btn.getAttribute('data-lang');
+                this.langManager.setLanguage(lang);
+            });
+        });
+        
+        // Set initial active language
+        const activeBtn = document.querySelector(`[data-lang="${this.langManager.currentLanguage}"]`);
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+        }
     }
 
     setupEventListeners() {
@@ -43,7 +67,7 @@ class MathDash {
             btn.style.background = colors[i - 1];
             btn.innerHTML = `
                 <div class="table-number">${i}</div>
-                <div class="table-label">Table</div>
+                <div class="table-label">${this.langManager.getTranslation('tableLabel')}</div>
             `;
             btn.addEventListener('click', () => this.startGame(i));
             tableGrid.appendChild(btn);
@@ -68,7 +92,10 @@ class MathDash {
         this.challenges = this.generateTableChallenges(table);
         
         // Update table badge
-        document.getElementById('tableBadge').textContent = `Table: ${table}`;
+        document.getElementById('tableBadge').textContent = `${this.langManager.getTranslation('tableBadge')}: ${table}`;
+        
+        // Update step progress text
+        document.querySelector('.progress-info span').innerHTML = `${this.langManager.getTranslation('stepProgress')} <span id="currentQuestion">1</span>/10`;
         
         // Create labyrinth path
         this.createLabyrinthPath(table);
@@ -255,11 +282,7 @@ class MathDash {
             isCorrect: isCorrect
         });
         
-        const encouragements = [
-            'Awesome! 🌟', 'Great job! ✨', 'Perfect! 🎯', 
-            'You got it! 🚀', 'Excellent! 🌈', 'Amazing! 💫',
-            'Superb! 🎨', 'Brilliant! 🔥', 'Fantastic! 🎪', 'Wonderful! 🎁'
-        ];
+        const encouragements = this.langManager.getTranslation('feedbackCorrect');
         
         if (isCorrect) {
             this.correctAnswers++;
@@ -297,7 +320,7 @@ class MathDash {
         } else {
             // Show error feedback
             clickedNode.classList.add('error', 'shake');
-            this.showFeedback(`Not quite! ✖️ Try again!`, false);
+            this.showFeedback(this.langManager.getTranslation('feedbackWrong'), false);
             
             // Remove error styling after animation
             setTimeout(() => {
@@ -322,17 +345,19 @@ class MathDash {
         
         // Calculate stars (1-3 based on accuracy)
         let stars = '';
+        let celebrationKey = '';
         if (accuracy === 100) {
             stars = '⭐⭐⭐';
-            document.getElementById('celebrationText').textContent = 'Perfect! You mastered this table! 🏆';
+            celebrationKey = 'celebrationPerfect';
         } else if (accuracy >= 70) {
             stars = '⭐⭐';
-            document.getElementById('celebrationText').textContent = 'Great job! Keep practicing! 🌟';
+            celebrationKey = 'celebrationGood';
         } else {
             stars = '⭐';
-            document.getElementById('celebrationText').textContent = 'Good try! Practice makes perfect! 💪';
+            celebrationKey = 'celebrationTry';
         }
         
+        document.getElementById('celebrationText').textContent = this.langManager.getTranslation(celebrationKey);
         document.getElementById('starsEarned').textContent = stars;
         
         this.showScreen('resultsScreen');
