@@ -29,6 +29,41 @@ body {
     flex-direction: column;
 }
 
+/* Language Switcher */
+.language-switcher {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 8px;
+    z-index: 1000;
+    background: var(--card-bg);
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+}
+
+.lang-btn {
+    font-size: 1.8rem;
+    background: transparent;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 6px 10px;
+    transition: var(--transition);
+    line-height: 1;
+}
+
+.lang-btn:hover {
+    transform: scale(1.1);
+    background: rgba(255, 107, 107, 0.1);
+}
+
+.lang-btn.active {
+    border-color: var(--primary-color);
+    background: rgba(255, 107, 107, 0.15);
+}
+
 #app {
     flex: 1;
     display: flex;
