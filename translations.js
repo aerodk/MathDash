@@ -8,6 +8,14 @@ const translations = {
         instructionText: "Navigate through the maze by solving multiplication problems! 🌟",
         startButton: "Choose Your Table!",
         
+        // Mode Selection Screen
+        modeSelectTitle: "Choose Your Mode! 🎯",
+        modeSelectSubtitle: "What would you like to practice?",
+        tablesMode: "Times Tables",
+        tablesDescription: "Practice multiplication tables 1-10",
+        mixedMode: "Mixed Operations",
+        mixedDescription: "Addition, subtraction, multiplication & division (ages 10+)",
+        
         // Table Selection Screen
         selectTitle: "Choose Your Times Table! 🎯",
         selectSubtitle: "Which multiplication table do you want to practice?",
@@ -16,9 +24,17 @@ const translations = {
         
         // Game Screen
         tableBadge: "Table",
+        mixedModeBadge: "Mixed Operations (Ages 10+)",
         stepProgress: "Step",
         questionFormat: "{a} × {b} = ?",
         instructionGame: "Choose the correct answer from the options above! 👆",
+        
+        // Hints
+        hintMultiplication: "Hint: Break {a}×{b} into {a}×{tens} + {a}×{ones} = {part1} + {part2}",
+        hintMultiplicationSimple: "Hint: {a}×{b} = {a}×10 × {count} = {result} × {count}",
+        hintDivision: "Hint: How many times does {b} fit into {a}? Try counting by {b}s!",
+        hintAddition: "Hint: Break into parts: ({aTens}+{aOnes}) + ({bTens}+{bOnes})",
+        hintSubtraction: "Hint: Count back from {a} by {b}, or think: {b} + ? = {a}",
         
         // Feedback messages
         feedbackCorrect: [
@@ -48,6 +64,14 @@ const translations = {
         instructionText: "Naviger gennem labyrinten ved at løse gangestykker! 🌟",
         startButton: "Vælg Din Tabel!",
         
+        // Mode Selection Screen
+        modeSelectTitle: "Vælg Din Tilstand! 🎯",
+        modeSelectSubtitle: "Hvad vil du gerne øve?",
+        tablesMode: "Gangetabeller",
+        tablesDescription: "Øv gangetabeller 1-10",
+        mixedMode: "Blandede Regnearter",
+        mixedDescription: "Plus, minus, gange og division (10+ år)",
+        
         // Table Selection Screen
         selectTitle: "Vælg Din Gangetabel! 🎯",
         selectSubtitle: "Hvilken gangetabel vil du øve?",
@@ -56,9 +80,17 @@ const translations = {
         
         // Game Screen
         tableBadge: "Tabel",
+        mixedModeBadge: "Blandede Regnearter (10+ år)",
         stepProgress: "Trin",
         questionFormat: "{a} × {b} = ?",
         instructionGame: "Vælg det rigtige svar fra mulighederne ovenfor! 👆",
+        
+        // Hints
+        hintMultiplication: "Hint: Del {a}×{b} op i {a}×{tens} + {a}×{ones} = {part1} + {part2}",
+        hintMultiplicationSimple: "Hint: {a}×{b} = {a}×10 × {count} = {result} × {count}",
+        hintDivision: "Hint: Hvor mange gange går {b} op i {a}? Prøv at tælle med {b}!",
+        hintAddition: "Hint: Del op i dele: ({aTens}+{aOnes}) + ({bTens}+{bOnes})",
+        hintSubtraction: "Hint: Tæl tilbage fra {a} med {b}, eller tænk: {b} + ? = {a}",
         
         // Feedback messages
         feedbackCorrect: [
