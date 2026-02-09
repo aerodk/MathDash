@@ -265,6 +265,7 @@ class MathDash {
     generateHint(challenge) {
         const { operation, operands, answer } = challenge;
         
+        // Skip hint generation for challenges without operands (e.g., table mode)
         if (!operands) return null;
         
         const { a, b } = operands;
@@ -276,17 +277,19 @@ class MathDash {
                     const tens = Math.floor(b / 10) * 10;
                     const ones = b % 10;
                     if (ones > 0) {
-                        return this.langManager.getTranslation('hintMultiplication')
-                            .replace('{a}', a)
-                            .replace('{b}', b)
-                            .replace('{tens}', tens)
-                            .replace('{ones}', ones)
+                        const multHint = this.langManager.getTranslation('hintMultiplication');
+                        return multHint
+                            .replace(/{a}/g, a)
+                            .replace(/{b}/g, b)
+                            .replace(/{tens}/g, tens)
+                            .replace(/{ones}/g, ones)
                             .replace('{part1}', a * tens)
                             .replace('{part2}', a * ones);
                     } else {
-                        return this.langManager.getTranslation('hintMultiplicationSimple')
-                            .replace('{a}', a)
-                            .replace('{b}', b)
+                        const multSimpleHint = this.langManager.getTranslation('hintMultiplicationSimple');
+                        return multSimpleHint
+                            .replace(/{a}/g, a)
+                            .replace(/{b}/g, b)
                             .replace('{result}', a * 10)
                             .replace('{count}', tens / 10);
                     }
@@ -294,9 +297,10 @@ class MathDash {
                 return null;
                 
             case 'division':
-                return this.langManager.getTranslation('hintDivision')
+                const divisionHint = this.langManager.getTranslation('hintDivision');
+                return divisionHint
                     .replace('{a}', a)
-                    .replace('{b}', b)
+                    .replace(/{b}/g, b)
                     .replace('{answer}', answer);
                 
             case 'addition':
@@ -305,7 +309,8 @@ class MathDash {
                 const aOnes = a % 10;
                 const bTens = Math.floor(b / 10) * 10;
                 const bOnes = b % 10;
-                return this.langManager.getTranslation('hintAddition')
+                const addHint = this.langManager.getTranslation('hintAddition');
+                return addHint
                     .replace('{a}', a)
                     .replace('{b}', b)
                     .replace('{aTens}', aTens)
@@ -314,9 +319,10 @@ class MathDash {
                     .replace('{bOnes}', bOnes);
                 
             case 'subtraction':
-                return this.langManager.getTranslation('hintSubtraction')
-                    .replace('{a}', a)
-                    .replace('{b}', b)
+                const subHint = this.langManager.getTranslation('hintSubtraction');
+                return subHint
+                    .replace(/{a}/g, a)
+                    .replace(/{b}/g, b)
                     .replace('{answer}', answer);
                 
             default:
@@ -387,6 +393,11 @@ class MathDash {
             if (challenge && challenge.operation) {
                 // Use operation-specific strategies for mixed mode
                 wrongAnswer = this.generateOperationSpecificDistractor(challenge, wrongAnswers.size);
+                
+                // If null returned (no operands), fall back to random strategy
+                if (wrongAnswer === null) {
+                    wrongAnswer = correctAnswer + Math.floor(Math.random() * 10) - 5;
+                }
             } else {
                 // Original table-based strategies
                 const strategy = Math.floor(Math.random() * 4);
@@ -432,6 +443,11 @@ class MathDash {
     }
 
     generateOperationSpecificDistractor(challenge, distractorIndex) {
+        // Return null if challenge doesn't have operands (table mode)
+        if (!challenge || !challenge.operands) {
+            return null;
+        }
+        
         const { operation, operands, answer } = challenge;
         const { a, b } = operands;
         
