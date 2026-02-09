@@ -9,12 +9,16 @@ class MathDash {
         this.firstAttemptCorrect = 0;
         this.attemptedQuestions = new Set();
         this.selectedTable = null;
+        this.selectedMode = null; // 'tables' or 'mixed'
+        this.wrongAttempts = {}; // Track wrong attempts per question
         
         // Constants for distractor generation
         this.MAX_DISTRACTOR_GENERATION_ATTEMPTS = 20;
         this.FALLBACK_RANDOM_RANGE = 3;
         this.FALLBACK_MIN_OFFSET = 2;
         this.MAX_FALLBACK_ATTEMPTS = 10;
+        this.OPTIONS_COUNT = 5; // Number of multiple choice options
+        this.INCORRECT_OPTION_REMOVAL_DELAY = 500; // Milliseconds before hiding wrong option
         
         // Initialize language manager
         this.langManager = new LanguageManager();
@@ -72,10 +76,25 @@ class MathDash {
     }
 
     setupEventListeners() {
-        document.getElementById('startBtn').addEventListener('click', () => this.showTableSelection());
+        document.getElementById('startBtn').addEventListener('click', () => this.showModeSelection());
         document.getElementById('backToStartBtn').addEventListener('click', () => this.showScreen('startScreen'));
-        document.getElementById('playAgainBtn').addEventListener('click', () => this.showTableSelection());
-        document.getElementById('sameTableBtn').addEventListener('click', () => this.startGame(this.selectedTable));
+        document.getElementById('backToModeBtn').addEventListener('click', () => this.showModeSelection());
+        document.getElementById('playAgainBtn').addEventListener('click', () => this.showModeSelection());
+        document.getElementById('sameTableBtn').addEventListener('click', () => {
+            if (this.selectedMode === 'tables') {
+                this.startGame(this.selectedTable);
+            } else {
+                this.startMixedGame();
+            }
+        });
+        document.getElementById('tablesBtn').addEventListener('click', () => {
+            this.selectedMode = 'tables';
+            this.showTableSelection();
+        });
+        document.getElementById('mixedBtn').addEventListener('click', () => {
+            this.selectedMode = 'mixed';
+            this.startMixedGame();
+        });
     }
 
     showTableSelection() {
@@ -101,6 +120,42 @@ class MathDash {
         this.showScreen('tableSelectScreen');
     }
 
+    showModeSelection() {
+        this.showScreen('modeSelectScreen');
+    }
+
+    startMixedGame() {
+        this.selectedTable = null;
+        this.selectedMode = 'mixed';
+        this.currentQuestionIndex = 0;
+        this.answers = [];
+        this.correctAnswers = 0;
+        this.firstAttemptCorrect = 0;
+        this.attemptedQuestions = new Set();
+        this.wrongAttempts = {};
+        
+        // Generate mixed challenges (addition, subtraction, multiplication, division)
+        this.challenges = this.generateMixedChallenges();
+        
+        // Update table badge
+        document.getElementById('tableBadge').textContent = this.langManager.getTranslation('mixedModeBadge');
+        
+        // Update step progress text
+        const progressSpan = document.querySelector('.progress-info span');
+        progressSpan.textContent = `${this.langManager.getTranslation('stepProgress')} `;
+        const questionSpan = document.createElement('span');
+        questionSpan.id = 'currentQuestion';
+        questionSpan.textContent = '1';
+        progressSpan.appendChild(questionSpan);
+        progressSpan.appendChild(document.createTextNode('/10'));
+        
+        // Create labyrinth path
+        this.createLabyrinthPath(null);
+        
+        this.showScreen('gameScreen');
+        this.displayQuestion();
+    }
+
     startGame(table) {
         // Validate table number
         if (typeof table !== 'number' || table < 1 || table > 10) {
@@ -109,11 +164,13 @@ class MathDash {
         }
         
         this.selectedTable = table;
+        this.selectedMode = 'tables';
         this.currentQuestionIndex = 0;
         this.answers = [];
         this.correctAnswers = 0;
         this.firstAttemptCorrect = 0;
         this.attemptedQuestions = new Set();
+        this.wrongAttempts = {};
         
         // Generate challenges for the selected table (1-10)
         this.challenges = this.generateTableChallenges(table);
@@ -145,27 +202,150 @@ class MathDash {
             challenges.push({
                 question: `${table} × ${i} = ?`,
                 answer: table * i,
-                multiplier: i
+                multiplier: i,
+                operation: 'multiplication'
             });
         }
         
         return challenges;
     }
 
+    generateMixedChallenges() {
+        const challenges = [];
+        const operations = ['addition', 'subtraction', 'multiplication', 'division'];
+        
+        // Generate 10 random challenges with numbers from 10 to 50
+        for (let i = 0; i < 10; i++) {
+            const operation = operations[Math.floor(Math.random() * operations.length)];
+            let a, b, answer, question;
+            
+            switch(operation) {
+                case 'addition':
+                    a = Math.floor(Math.random() * 41) + 10; // 10-50
+                    b = Math.floor(Math.random() * 41) + 10; // 10-50
+                    answer = a + b;
+                    question = `${a} + ${b} = ?`;
+                    break;
+                    
+                case 'subtraction':
+                    // Ensure result is positive
+                    a = Math.floor(Math.random() * 41) + 10; // 10-50
+                    b = Math.floor(Math.random() * (a - 10)) + 10; // 10 to (a-10), ensuring positive result
+                    answer = a - b;
+                    question = `${a} - ${b} = ?`;
+                    break;
+                    
+                case 'multiplication':
+                    a = Math.floor(Math.random() * 9) + 2; // 2-10 (inclusive)
+                    b = Math.floor(Math.random() * 9) + 2; // 2-10 (inclusive)
+                    answer = a * b;
+                    question = `${a} × ${b} = ?`;
+                    break;
+                    
+                case 'division':
+                    // Ensure clean division
+                    b = Math.floor(Math.random() * 9) + 2; // 2-10 (inclusive) - divisor
+                    const quotient = Math.floor(Math.random() * 9) + 2; // 2-10 (inclusive)
+                    a = b * quotient;
+                    answer = quotient;
+                    question = `${a} ÷ ${b} = ?`;
+                    break;
+            }
+            
+            challenges.push({
+                question: question,
+                answer: answer,
+                operation: operation,
+                operands: { a, b }
+            });
+        }
+        
+        return challenges;
+    }
+
+    generateHint(challenge) {
+        const { operation, operands, answer } = challenge;
+        
+        // Skip hint generation for challenges without operands (e.g., table mode)
+        if (!operands) return null;
+        
+        const { a, b } = operands;
+        
+        switch(operation) {
+            case 'multiplication':
+                // Decomposition strategy: e.g., 7×17 = 7×10 + 7×7
+                if (b > 10) {
+                    const tens = Math.floor(b / 10) * 10;
+                    const ones = b % 10;
+                    if (ones > 0) {
+                        const multHint = this.langManager.getTranslation('hintMultiplication');
+                        return multHint
+                            .replace(/{a}/g, a)
+                            .replace(/{b}/g, b)
+                            .replace(/{tens}/g, tens)
+                            .replace(/{ones}/g, ones)
+                            .replace('{part1}', a * tens)
+                            .replace('{part2}', a * ones);
+                    } else {
+                        const multSimpleHint = this.langManager.getTranslation('hintMultiplicationSimple');
+                        return multSimpleHint
+                            .replace(/{a}/g, a)
+                            .replace(/{b}/g, b)
+                            .replace('{result}', a * 10)
+                            .replace('{count}', tens / 10);
+                    }
+                }
+                return null;
+                
+            case 'division':
+                const divisionHint = this.langManager.getTranslation('hintDivision');
+                return divisionHint
+                    .replace('{a}', a)
+                    .replace(/{b}/g, b)
+                    .replace('{answer}', answer);
+                
+            case 'addition':
+                // Break down into tens and ones
+                const aTens = Math.floor(a / 10) * 10;
+                const aOnes = a % 10;
+                const bTens = Math.floor(b / 10) * 10;
+                const bOnes = b % 10;
+                const addHint = this.langManager.getTranslation('hintAddition');
+                return addHint
+                    .replace('{a}', a)
+                    .replace('{b}', b)
+                    .replace('{aTens}', aTens)
+                    .replace('{aOnes}', aOnes)
+                    .replace('{bTens}', bTens)
+                    .replace('{bOnes}', bOnes);
+                
+            case 'subtraction':
+                const subHint = this.langManager.getTranslation('hintSubtraction');
+                return subHint
+                    .replace(/{a}/g, a)
+                    .replace(/{b}/g, b)
+                    .replace('{answer}', answer);
+                
+            default:
+                return null;
+        }
+    }
+
     createLabyrinthPath(table) {
         const pathContainer = document.getElementById('labyrinthPath');
         pathContainer.innerHTML = '';
         
-        // Create maze with multiple paths - 3 options per question
+        // Create maze with multiple paths - 5 options per question
         for (let i = 1; i <= 10; i++) {
             const rowDiv = document.createElement('div');
             rowDiv.className = 'maze-row';
             rowDiv.id = `row-${i}`;
             
-            const correctAnswer = table * i;
+            const challenge = this.challenges[i - 1];
+            const correctAnswer = challenge.answer;
             
             // Generate wrong answers (distractors)
-            const options = this.generateMazeOptions(correctAnswer, table);
+            const options = this.generateMazeOptions(correctAnswer, table, challenge);
             
             // Shuffle options so correct answer isn't always in same position
             this.shuffleArray(options);
@@ -198,8 +378,8 @@ class MathDash {
         this.updateLabyrinthProgress(0);
     }
     
-    generateMazeOptions(correctAnswer, table) {
-        // Generate 2 wrong answers along with the correct answer
+    generateMazeOptions(correctAnswer, table, challenge) {
+        // Generate 4 wrong answers along with the correct answer (total of 5 options)
         const options = [correctAnswer];
         const wrongAnswers = new Set();
         
@@ -207,27 +387,39 @@ class MathDash {
         let attempts = 0;
         
         // Strategy for generating plausible wrong answers
-        while (wrongAnswers.size < 2 && attempts < this.MAX_DISTRACTOR_GENERATION_ATTEMPTS) {
+        while (wrongAnswers.size < 4 && attempts < this.MAX_DISTRACTOR_GENERATION_ATTEMPTS) {
             attempts++;
-            const strategy = Math.floor(Math.random() * 4);
             let wrongAnswer;
             
-            switch(strategy) {
-                case 0: // Off by table value
-                    wrongAnswer = correctAnswer + (Math.random() < 0.5 ? table : -table);
-                    break;
-                case 1: // Off by 1
-                    wrongAnswer = correctAnswer + (Math.random() < 0.5 ? 1 : -1);
-                    break;
-                case 2: // Related table answer - use different table with same multiplier
-                    const offset = Math.floor(Math.random() * 3) + 1;
-                    const relatedTable = Math.max(1, table + (Math.random() < 0.5 ? offset : -offset));
-                    const multiplier = Math.ceil(correctAnswer / table);
-                    wrongAnswer = relatedTable * multiplier;
-                    break;
-                case 3: // Random nearby value
+            if (challenge && challenge.operation) {
+                // Use operation-specific strategies for mixed mode
+                wrongAnswer = this.generateOperationSpecificDistractor(challenge, wrongAnswers.size);
+                
+                // If null returned (no operands), fall back to random strategy
+                if (wrongAnswer === null) {
                     wrongAnswer = correctAnswer + Math.floor(Math.random() * 10) - 5;
-                    break;
+                }
+            } else {
+                // Original table-based strategies
+                const strategy = Math.floor(Math.random() * 4);
+                
+                switch(strategy) {
+                    case 0: // Off by table value
+                        wrongAnswer = correctAnswer + (Math.random() < 0.5 ? table : -table);
+                        break;
+                    case 1: // Off by 1
+                        wrongAnswer = correctAnswer + (Math.random() < 0.5 ? 1 : -1);
+                        break;
+                    case 2: // Related table answer - use different table with same multiplier
+                        const offset = Math.floor(Math.random() * 3) + 1;
+                        const relatedTable = Math.max(1, table + (Math.random() < 0.5 ? offset : -offset));
+                        const multiplier = Math.ceil(correctAnswer / table);
+                        wrongAnswer = relatedTable * multiplier;
+                        break;
+                    case 3: // Random nearby value
+                        wrongAnswer = correctAnswer + Math.floor(Math.random() * 10) - 5;
+                        break;
+                }
             }
             
             // Ensure wrong answer is positive and different from correct answer
@@ -238,17 +430,68 @@ class MathDash {
         
         // If we couldn't generate enough wrong answers (edge case), use smart fallbacks
         let fallbackAttempts = 0;
-        while (wrongAnswers.size < 2 && fallbackAttempts < this.MAX_FALLBACK_ATTEMPTS) {
+        while (wrongAnswers.size < 4 && fallbackAttempts < this.MAX_FALLBACK_ATTEMPTS) {
             fallbackAttempts++;
-            // Try table-based offset first, then small random offsets
-            const fallbackStrategy = wrongAnswers.size === 0 ? table : Math.floor(Math.random() * this.FALLBACK_RANDOM_RANGE) + this.FALLBACK_MIN_OFFSET;
-            const fallback = correctAnswer + fallbackStrategy;
+            // Use different offsets to ensure variety
+            const fallbackOffset = (wrongAnswers.size + 1) * (Math.random() < 0.5 ? 1 : -1) * (Math.floor(Math.random() * 5) + 1);
+            const fallback = correctAnswer + fallbackOffset;
             if (fallback > 0 && fallback !== correctAnswer && !wrongAnswers.has(fallback)) {
                 wrongAnswers.add(fallback);
             }
         }
         
         return [correctAnswer, ...Array.from(wrongAnswers)];
+    }
+
+    generateOperationSpecificDistractor(challenge, distractorIndex) {
+        // Return null if challenge doesn't have operands (table mode)
+        if (!challenge || !challenge.operands) {
+            return null;
+        }
+        
+        const { operation, operands, answer } = challenge;
+        const { a, b } = operands;
+        
+        switch(operation) {
+            case 'addition':
+                const strategies = [
+                    () => a + b + Math.floor(Math.random() * 10) + 1, // Slightly higher
+                    () => a + b - Math.floor(Math.random() * 10) - 1, // Slightly lower
+                    () => a + b + 10, // Off by 10
+                    () => a - b // Common mistake: subtraction instead
+                ];
+                return strategies[distractorIndex % strategies.length]();
+                
+            case 'subtraction':
+                const subStrategies = [
+                    () => a - b + Math.floor(Math.random() * 10) + 1,
+                    () => Math.max(1, a - b - Math.floor(Math.random() * 10) - 1), // Ensure positive
+                    () => a + b, // Common mistake: addition instead
+                    () => Math.max(1, b - Math.floor(Math.random() * 5) - 1) // Another positive result
+                ];
+                return subStrategies[distractorIndex % subStrategies.length]();
+                
+            case 'multiplication':
+                const multStrategies = [
+                    () => a * b + a, // Off by one factor
+                    () => a * b - a,
+                    () => a * b + b,
+                    () => a + b // Common mistake: addition instead
+                ];
+                return multStrategies[distractorIndex % multStrategies.length]();
+                
+            case 'division':
+                const divStrategies = [
+                    () => answer + 1,
+                    () => answer - 1,
+                    () => b, // Common mistake: using divisor
+                    () => a // Common mistake: using dividend
+                ];
+                return divStrategies[distractorIndex % divStrategies.length]();
+                
+            default:
+                return answer + Math.floor(Math.random() * 10) - 5;
+        }
     }
     
     /**
@@ -293,6 +536,18 @@ class MathDash {
         document.getElementById('currentQuestion').textContent = this.currentQuestionIndex + 1;
         document.getElementById('feedback').textContent = '';
         document.getElementById('feedback').className = 'feedback';
+        
+        // Clear hint
+        const hintBox = document.getElementById('hintBox');
+        if (hintBox) {
+            hintBox.style.display = 'none';
+            hintBox.textContent = '';
+        }
+        
+        // Initialize wrong attempts counter for this question
+        if (!this.wrongAttempts[this.currentQuestionIndex]) {
+            this.wrongAttempts[this.currentQuestionIndex] = 0;
+        }
         
         // Update the maze progress to enable current row
         this.updateLabyrinthProgress(this.currentQuestionIndex);
@@ -360,9 +615,30 @@ class MathDash {
             // Mark this question as attempted (for first-attempt tracking)
             this.attemptedQuestions.add(this.currentQuestionIndex);
             
+            // Increment wrong attempts counter
+            this.wrongAttempts[this.currentQuestionIndex]++;
+            
             // Show error feedback
             clickedNode.classList.add('error', 'shake');
             this.showFeedback(this.langManager.getTranslation('feedbackWrong'), false);
+            
+            // Remove this incorrect option (progressive removal)
+            setTimeout(() => {
+                clickedNode.style.display = 'none';
+                clickedNode.style.pointerEvents = 'none';
+            }, this.INCORRECT_OPTION_REMOVAL_DELAY);
+            
+            // Show hint after 2 wrong attempts
+            if (this.wrongAttempts[this.currentQuestionIndex] === 2) {
+                const hint = this.generateHint(challenge);
+                if (hint) {
+                    const hintBox = document.getElementById('hintBox');
+                    if (hintBox) {
+                        hintBox.textContent = '💡 ' + hint;
+                        hintBox.style.display = 'block';
+                    }
+                }
+            }
             
             // Remove error styling after animation
             setTimeout(() => {

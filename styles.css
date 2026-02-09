@@ -159,6 +159,53 @@ body {
     margin-bottom: 2rem;
 }
 
+/* Mode Selection Grid */
+.mode-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.mode-btn {
+    background: var(--card-bg);
+    border: 3px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    padding: 2rem 1.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--box-shadow);
+    text-align: center;
+}
+
+.mode-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 107, 107, 0.05) 100%);
+}
+
+.mode-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.mode-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.mode-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.mode-description {
+    font-size: 1rem;
+    color: var(--text-light);
+    line-height: 1.4;
+}
+
 .table-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -251,10 +298,12 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
+    gap: 0.75rem;
     opacity: 0.4;
     transition: var(--transition);
     position: relative;
+    flex-wrap: wrap;
+    max-width: 100%;
 }
 
 .maze-row.active {
@@ -280,8 +329,8 @@ body {
 }
 
 .path-node {
-    width: 70px;
-    height: 70px;
+    width: 65px;
+    height: 65px;
     border-radius: 50%;
     background: #E0E0E0;
     display: flex;
@@ -291,6 +340,7 @@ body {
     position: relative;
     cursor: pointer;
     border: 3px solid transparent;
+    flex-shrink: 0;
 }
 
 .path-node:hover:not(.completed):not(.wrong-path) {
@@ -410,6 +460,19 @@ body {
 
 .feedback.incorrect {
     color: var(--error-color);
+}
+
+.hint-box {
+    background: linear-gradient(135deg, #FFF3CD 0%, #FFF9E5 100%);
+    border: 2px solid #FFD93D;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    font-size: 1.1rem;
+    color: var(--text-color);
+    text-align: left;
+    line-height: 1.6;
+    box-shadow: 0 2px 8px rgba(255, 217, 61, 0.3);
 }
 
 @keyframes bounceIn {
@@ -549,6 +612,10 @@ body {
     .table-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+    
+    .mode-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 480px) {
@@ -573,16 +640,21 @@ body {
     }
     
     .path-node {
-        width: 60px;
-        height: 60px;
+        width: 55px;
+        height: 55px;
     }
     
     .node-content {
-        font-size: 1.1rem;
+        font-size: 1rem;
     }
     
     .maze-row {
-        gap: 0.75rem;
+        gap: 0.5rem;
+    }
+    
+    .hint-box {
+        font-size: 1rem;
+        padding: 1rem;
     }
 }
 
