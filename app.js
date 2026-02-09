@@ -18,6 +18,7 @@ class MathDash {
         this.FALLBACK_MIN_OFFSET = 2;
         this.MAX_FALLBACK_ATTEMPTS = 10;
         this.OPTIONS_COUNT = 5; // Number of multiple choice options
+        this.INCORRECT_OPTION_REMOVAL_DELAY = 500; // Milliseconds before hiding wrong option
         
         // Initialize language manager
         this.langManager = new LanguageManager();
@@ -235,16 +236,16 @@ class MathDash {
                     break;
                     
                 case 'multiplication':
-                    a = Math.floor(Math.random() * 9) + 2; // 2-10
-                    b = Math.floor(Math.random() * 9) + 2; // 2-10
+                    a = Math.floor(Math.random() * 9) + 2; // 2-10 (inclusive)
+                    b = Math.floor(Math.random() * 9) + 2; // 2-10 (inclusive)
                     answer = a * b;
                     question = `${a} × ${b} = ?`;
                     break;
                     
                 case 'division':
                     // Ensure clean division
-                    b = Math.floor(Math.random() * 9) + 2; // 2-10 (divisor)
-                    const quotient = Math.floor(Math.random() * 9) + 2; // 2-10
+                    b = Math.floor(Math.random() * 9) + 2; // 2-10 (inclusive) - divisor
+                    const quotient = Math.floor(Math.random() * 9) + 2; // 2-10 (inclusive)
                     a = b * quotient;
                     answer = quotient;
                     question = `${a} ÷ ${b} = ?`;
@@ -464,11 +465,11 @@ class MathDash {
             case 'subtraction':
                 const subStrategies = [
                     () => a - b + Math.floor(Math.random() * 10) + 1,
-                    () => a - b - Math.floor(Math.random() * 10) - 1,
-                    () => b - a, // Reversed
-                    () => a + b // Common mistake: addition instead
+                    () => Math.max(1, a - b - Math.floor(Math.random() * 10) - 1), // Ensure positive
+                    () => a + b, // Common mistake: addition instead
+                    () => Math.max(1, b - Math.floor(Math.random() * 5) - 1) // Another positive result
                 ];
-                return Math.abs(subStrategies[distractorIndex % subStrategies.length]());
+                return subStrategies[distractorIndex % subStrategies.length]();
                 
             case 'multiplication':
                 const multStrategies = [
@@ -625,7 +626,7 @@ class MathDash {
             setTimeout(() => {
                 clickedNode.style.display = 'none';
                 clickedNode.style.pointerEvents = 'none';
-            }, 500);
+            }, this.INCORRECT_OPTION_REMOVAL_DELAY);
             
             // Show hint after 2 wrong attempts
             if (this.wrongAttempts[this.currentQuestionIndex] === 2) {
